@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tokenomics — Who Pays the 20-Year Rent? · AgentWorth</title>
+<meta name="description" content="AI compute leases, circular financing, bottlenecks and spot truth. Verified Sep 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<style>
+:root {
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+  --mv-ground: #ffffff; --mv-surface: #f4f4f5; --mv-surface-2: #efeff1; --mv-surface-3: #e4e4e7;
+  --mv-border: #e4e4e7; --mv-border-soft: #ececee;
+  --mv-ink: #111113; --mv-text: #3f3f46; --mv-muted: #52525b; --mv-faint: #a1a1aa;
+  --mv-accent: #7c6bb3; --mv-accent-soft: rgba(124,107,179,.08);
+  --mv-accent-border: rgba(124,107,179,.28); --mv-accent-contrast: #ffffff;
+  --mv-rise: 10px; --motion-fast: 120ms; --motion-base: 160ms;
+  --ease-out: cubic-bezier(0.22,1,0.36,1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --mv-ground: #000000; --mv-surface: #18181b; --mv-surface-2: #1d1d20; --mv-surface-3: #27272a;
+    --mv-border: #2a2a2d; --mv-border-soft: #1c1c1f;
+    --mv-ink: #ffffff; --mv-text: #d4d4d8; --mv-muted: #a1a1aa; --mv-faint: #52525b;
+    --mv-accent: #a396d6; --mv-accent-soft: rgba(163,150,214,.1);
+    --mv-accent-border: rgba(163,150,214,.3); --mv-accent-contrast: #0d0d0f;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --mv-ground: #000000; --mv-surface: #18181b; --mv-surface-2: #1d1d20; --mv-surface-3: #27272a;
+  --mv-border: #2a2a2d; --mv-border-soft: #1c1c1f;
+  --mv-ink: #ffffff; --mv-text: #d4d4d8; --mv-muted: #a1a1aa; --mv-faint: #52525b;
+  --mv-accent: #a396d6; --mv-accent-soft: rgba(163,150,214,.1);
+  --mv-accent-border: rgba(163,150,214,.3); --mv-accent-contrast: #0d0d0f;
+}
+@media (prefers-reduced-motion: reduce) { :root { --mv-rise: 0px; } * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--mv-ground); color: var(--mv-ink); font-family: var(--font-sans); }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 36px 24px 90px; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--mv-muted); }
+h1 { font-size: clamp(36px,5.4vw,62px); letter-spacing: -.032em; line-height: 1.0; margin: 12px 0 10px; }
+.sub { color: var(--mv-text); font-size: 17px; line-height: 1.6; max-width: 720px; }
+.toggle { display: flex; border: 1px solid var(--mv-border); border-radius: 999px; overflow: hidden; font-size: 13px; flex-shrink: 0; }
+.toggle button { border: 0; background: transparent; color: var(--mv-muted); padding: 8px 14px; cursor: pointer; font: inherit; }
+.toggle button.on { background: var(--mv-ink); color: var(--mv-ground); }
+.kpis { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 26px 0 8px; }
+@media (max-width: 860px) { .kpis { grid-template-columns: repeat(2,1fr); } }
+@media (max-width: 560px) { .kpis { grid-template-columns: 1fr; } }
+.kpi { border: 1px solid var(--mv-border); background: var(--mv-surface); border-radius: 16px; padding: 16px; }
+.kpi b { display: block; font-size: 30px; letter-spacing: -.02em; }
+.kpi span { color: var(--mv-muted); font-size: 12.5px; line-height: 1.45; display: block; margin-top: 4px; }
+.sec { margin-top: 34px; }
+.sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 6px; }
+.sec-num { font-family: var(--font-mono); color: var(--mv-accent); font-size: 13px; }
+.sec h2 { font-size: 22px; letter-spacing: -.02em; margin: 0; }
+.sec p.d { color: var(--mv-text); font-size: 14.5px; line-height: 1.6; max-width: 760px; }
+.grid2 { display: grid; grid-template-columns: 1.35fr .85fr; gap: 16px; margin-top: 14px; }
+@media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+.card { border: 1px solid var(--mv-border); border-radius: 18px; padding: 20px; background: var(--mv-ground); }
+.card h3 { margin: 0 0 4px; font-size: 15px; }
+.card p.h { margin: 0 0 12px; color: var(--mv-muted); font-size: 13px; }
+.chart { width: 100%; }
+table.t { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.t th { text-align: left; font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--mv-muted); padding: 8px 8px; border-bottom: 1px solid var(--mv-border); }
+table.t td { padding: 9px 8px; border-bottom: 1px solid var(--mv-border-soft); color: var(--mv-text); vertical-align: top; }
+table.t td:first-child { color: var(--mv-ink); font-weight: 600; }
+.flag { font-family: var(--font-mono); font-size: 10.5px; border-radius: 999px; padding: 2px 8px; border: 1px solid var(--mv-border); white-space: nowrap; }
+.flag.v { border-color: var(--mv-accent-border); background: var(--mv-accent-soft); color: var(--mv-ink); }
+.flag.r { color: var(--mv-muted); }
+.take { border-left: 3px solid var(--mv-accent); padding: 10px 14px; background: var(--mv-surface); border-radius: 0 12px 12px 0; margin: 10px 0; font-size: 14px; line-height: 1.55; color: var(--mv-text); }
+.take b { color: var(--mv-ink); }
+.foot { margin-top: 30px; color: var(--mv-faint); font-size: 12px; font-family: var(--font-mono); line-height: 1.8; }
+.pill { display: inline-block; font-family: var(--font-mono); font-size: 11px; border: 1px solid var(--mv-accent-border); background: var(--mv-accent-soft); border-radius: 999px; padding: 4px 10px; margin: 0 8px 8px 0; }
+.reveal { opacity: 0; transform: translateY(var(--mv-rise)); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="kicker">AgentWorth · Tokenomics Board · Verified 11 Sep 2026 · 18 lanes</div>
+    <div class="toggle"><button data-t="system" class="on">System</button><button data-t="light">Light</button><button data-t="dark">Dark</button></div>
+  </div>
+  <h1 class="reveal">Who pays the 20-year rent?</h1>
+  <p class="sub reveal">Frontier labs stopped buying computers. They lease gigawatts for decades, the chipmaker guarantees the rent, and tokens must cover it. Fixed cost vs deflating unit price — that gap is the whole game. Below: every load-bearing deal, bottleneck and price, verified vs reported.</p>
+  <div class="reveal"><span class="pill">US renters · ~$1T+ gross tracked</span><span class="pill">China pods · 8,192-chip SuperPod</span><span class="pill">Sovereign India+Gulf · $110B + $100B</span></div>
+
+  <div class="kpis">
+    <div class="kpi reveal"><b>$500B</b><span>US renters — Stargate plan, 10GW by 2029. ~7GW / $400B+ active now.</span></div>
+    <div class="kpi reveal"><b>750k</b><span>China pods — Huawei 950PR plan '26; 384-chip pods → 8,192-chip SuperPod at 4x power.</span></div>
+    <div class="kpi reveal"><b>$110B + $100B</b><span>Sovereign builders — Reliance $110B + MGX $100B AIP; Stargate UAE 1GW/5GW, Humain 6GW by 2034.</span></div>
+    <div class="kpi reveal"><b>$105B</b><span>US renters — Nvidia backstop, Ohio 20-yr lease. Guarantee-for-lease replaced equity-for-chips.</span></div>
+    <div class="kpi reveal"><b>144 wks</b><span>Binding constraint — GSU transformer lead. 2,061GW sit in US queues, median 61 mo to power.</span></div>
+    <div class="kpi reveal"><b>$0.35 → $6.16</b><span>Spot truth — H100/hr: broker spot floor vs own-fleet on-demand. 2x discount, same chip.</span></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><span class="sec-num">01</span><h2>The rent roll</h2></div>
+    <p class="d">Biggest compute leases/commitments. Bubble = term length. Reported (anonymous-source) deals flagged — don't size positions on them alone.</p>
+    <div class="grid2">
+      <div class="card reveal"><h3>Commitment size ($B)</h3><p class="h">Company PR / SEC filing = verified · Bloomberg/WSJ/Reuters anon = reported</p><div id="c-rent" class="chart" style="height:440px"></div></div>
+      <div class="card reveal"><h3>Circular money</h3><p class="h">Vendor funds buyer who buys vendor. Works while utilization &gt;70%.</p>
+        <svg viewBox="0 0 320 240" style="width:100%;height:auto" font-family="Geist Mono, monospace" font-size="11">
+          <rect x="100" y="8" width="120" height="44" rx="22" fill="var(--mv-surface)" stroke="var(--mv-border)"/><text x="160" y="26" text-anchor="middle" fill="var(--mv-ink)">NVIDIA</text><text x="160" y="40" text-anchor="middle" fill="var(--mv-muted)">$ + chips</text>
+          <rect x="8" y="170" width="132" height="44" rx="22" fill="var(--mv-surface)" stroke="var(--mv-border)"/><text x="74" y="188" text-anchor="middle" fill="var(--mv-ink)">OpenAI</text><text x="74" y="202" text-anchor="middle" fill="var(--mv-muted)">rent + tokens</text>
+          <rect x="180" y="170" width="132" height="44" rx="22" fill="var(--mv-accent-soft)" stroke="var(--mv-accent-border)"/><text x="246" y="188" text-anchor="middle" fill="var(--mv-ink)">Anthropic</text><text x="246" y="202" text-anchor="middle" fill="var(--mv-muted)">rent + tokens</text>
+          <path id="f1" d="M130,52 C90,105 60,125 66,168" stroke="var(--mv-accent)" stroke-width="2" stroke-dasharray="6 6"/>
+          <path id="f2" d="M190,52 C230,105 250,125 250,168" stroke="var(--mv-accent)" stroke-width="2" stroke-dasharray="6 6"/>
+          <path d="M140,192 C160,140 160,100 152,54" stroke="var(--mv-faint)" stroke-width="2" stroke-dasharray="4 6"/>
+          <path d="M182,192 C168,140 170,100 158,54" stroke="var(--mv-faint)" stroke-width="2" stroke-dasharray="4 6"/>
+          <text x="160" y="120" text-anchor="middle" fill="var(--mv-muted)">equity + backstops ↓ · chips ↑</text>
+        </svg>
+        <table class="t"><tr><th>Backstop</th><th>Terms</th></tr>
+        <tr><td>Ohio $105B</td><td>Guarantee of lease/power + $1.5B SB Energy equity, 20yr</td></tr>
+        <tr><td>CoreWeave $6.3B</td><td>Unsold-capacity backstop + $2B equity</td></tr>
+        <tr><td>Fluidstack ~$1.8B</td><td>Google backstop behind $50B Anthropic build</td></tr>
+        <tr><td>Volta $1.3B</td><td>JPM SBLC behind $10B Norway hydro</td></tr></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Bottlenecks, in order</h2></div>
+    <p class="d">Shippable AI units track substrates and transformers, not press releases. CoWoS eased; ABF is now binding.</p>
+    <div class="grid2">
+      <div class="card reveal"><h3>Lead time / shortfall</h3><p class="h">Higher = tighter. 2026 verified.</p><div id="c-neck" class="chart" style="height:360px"></div></div>
+      <div class="card reveal"><h3>Memory: sold out, shifting</h3><p class="h">2026 HBM allocated, not price-cleared. Google/AMD tilt 2027 to Samsung.</p><div id="c-hbm" class="chart" style="height:220px"></div>
+        <div class="take"><b>HBM4 ~$500/stack</b> (+50-70% over HBM3E). SK ~70% of Rubin HBM4, Samsung ~25%, Micron single digits. NAND +60% since Sep-25; DRAM +58-63% QoQ — shortage into mid-27.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Spot truth: the glut predictor</h2></div>
+    <p class="d">Secondary price is where overbuild shows first. GB200 has no public $/hr anywhere — contact-only is a signal.</p>
+    <div class="grid2">
+      <div class="card reveal"><h3>H100 $/hr, Sep 2026</h3><p class="h">Broker floor vs own-fleet on-demand.</p><div id="c-spot" class="chart" style="height:320px"></div></div>
+      <div class="card reveal"><h3>Read it like a VC</h3><p class="h">What each price regime means.</p>
+        <div class="take"><b>Spot $0.35-2.50 holds</b> → balanced. Builders arbitrage brokers, neoclouds keep term sheets.</div>
+        <div class="take"><b>Spot &lt;$0.25 + GB200 appears</b> → glut starting. Buy inference, short duration rent, bid WorldTrainer pools cheap.</div>
+        <div class="take"><b>On-demand cuts &gt;20%</b> → fiber-glut phase. Distressed GPUs hit HuggingFace-grade open weights. Hardware owners win anyway.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><span class="sec-num">04</span><h2>East + sovereign: pods, not shrinks</h2></div>
+    <p class="d">China compensates with scale (384-chip pods → 8,192-chip SuperPod) at 4x power. Korea ships, Japan labs, Singapore gates on cables, India/Gulf buy sovereignty.</p>
+    <div class="card reveal"><table class="t">
+      <tr><th>Theatre</th><th>Verified anchor</th><th>Constraint</th><th>Flag</th></tr>
+      <tr><td>China training</td><td>Huawei 950PR 750k plan '26; Cambricon 500k plan; ByteDance ¥160B capex</td><td>HBM wall (~300k/yr cap), SMIC N+2 yield ~30-40%</td><td><span class="flag r">reported</span></td></tr>
+      <tr><td>Korea memory</td><td>SK ₩54.3T fabs to 2033; Furiosa 20k RNGD; Rebellions Quad live</td><td>HBM allocation, not demand</td><td><span class="flag v">verified</span></td></tr>
+      <tr><td>Taiwan fabs</td><td>TSMC Arizona $265B; Kumamoto $20B; Dresden €10B</td><td>CoWoS + ABF + 2028 relief</td><td><span class="flag v">verified</span></td></tr>
+      <tr><td>Japan</td><td>Rapidus 2nm pilot; Tomakomai 300MW→1GW</td><td>¥5T funding gap; vol 2027</td><td><span class="flag v">verified</span></td></tr>
+      <tr><td>Singapore</td><td>Theseus Infra (GIC+Macquarie, Anthropic anchor); 200MW awards</td><td>1.75GW SunCable paper till 2030s</td><td><span class="flag v">verified</span></td></tr>
+      <tr><td>India</td><td>Reliance $110B; Adani $100B; TCS 1GW; Yotta 20k Blackwell live</td><td>Power (10GW solar) is the moat</td><td><span class="flag v">verified</span></td></tr>
+      <tr><td>Gulf</td><td>MGX $100B AIP; Stargate UAE 1GW/5GW; Humain 6GW by 2034</td><td>Execution + US export rules</td><td><span class="flag v">verified</span></td></tr>
+      <tr><td>Europe</td><td>Mistral €21B; EU €30B Gigafactories; Nscale £2B</td><td>90MW unpowered; 7-10yr connects</td><td><span class="flag v">verified</span></td></tr>
+    </table></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><span class="sec-num">05</span><h2>Fast silicon: shipped vs slides</h2></div>
+    <p class="d">Digital domain-specific ships. Photonics pitches. Analog died.</p>
+    <div class="grid2">
+      <div class="card reveal"><h3>Readiness</h3><p class="h">Share of tracked vendors by stage.</p><div id="c-sil" class="chart" style="height:280px"></div></div>
+      <div class="card reveal"><h3>Names</h3><p class="h">Volume vs pilot, Sep 2026.</p>
+        <table class="t"><tr><th>Status</th><th>Who</th></tr>
+        <tr><td>Volume</td><td>Axelera, Hailo, Astera, Credo, Alphawave ($2.4B Qualcomm), Marvell/ALCHIP custom, Furiosa, Rebellions, Cerebras $510M</td></tr>
+        <tr><td>Pilot</td><td>Etched Sohu, Lightmatter ($4.4B), Positron, Untether, d-Matrix (vol summer-26), SambaNova SN50 H2-26</td></tr>
+        <tr><td>Dead/captive</td><td>Mythic (stalled), Graphcore (SoftBank captive), Gaudi (missed $500M), Falcon Shores (cancelled)</td></tr></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head"><span class="sec-num">06</span><h2>So what: invest + build</h2></div>
+    <div class="grid2">
+      <div class="card reveal"><h3>Equity lens</h3><div class="take"><b>Long physics:</b> turbines (GE 116GW, Siemens 69GW backlog), transformers, HBM (SK/Samsung/Micron sold out '26), substrates (Ibiden/Unimicron), spot brokers in glut.</div><div class="take"><b>Neutral labs:</b> rent without utilization is a short. Watch 70% utilization + on-demand cuts &gt;20%.</div><div class="take"><b>History rhyme:</b> Nortel/Cisco vendor financing → write-offs; fiber survived cheap. GPUs rot faster — distressed compute funds open weights.</div></div>
+      <div class="card reveal"><h3>Product lens</h3><div class="take"><b>WorldTrainer:</b> price by verified shape (multi-tool fix + test pass), not tokens. Weekly pools, estimate-before-upload, per-repo controls.</div><div class="take"><b>Chief-of-staff:</b> stay hybrid — local VAD/router (~300ms manners), frontier brains. Voice collapsed to ~$0.07 all-in/min.</div><div class="take"><b>Watch weekly:</b> H100 spot floor, GB200 listing, on-demand cuts, energization dates (Tydal Dec-26, Beacon Q1-27, Justified H2-27).</div></div>
+    </div>
+  </div>
+
+  <p class="foot reveal">METHOD — 18 research lanes, WebSearch deep + primary fetch (company blogs, SEC 8-K, Reuters/DCD/TechCrunch). Tiers: verified = read primary/filing; reported = multi-outlet anonymous; inferred = arithmetic/analyst, flagged inline. Single-source claims (WSJ data-mule, Barclays AMD inference) excluded from charts. Gaps: private PPA prices, per-deal $/MW where undisclosed, China yields beyond FT/Mizuho. Next refresh: event-driven on $5B+ deals or energization slips. Contact: agentworth.dev/tokenomics (planned).</p>
+</div>
+<script>
+const root = document.documentElement;
+document.querySelectorAll('.toggle button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.toggle button').forEach(x => x.classList.remove('on'));
+  b.classList.add('on');
+  const t = b.dataset.t;
+  if (t === 'system') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', t);
+  setTimeout(drawAll, 60);
+}));
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+gsap.to('.reveal', { opacity: 1, y: 0, duration: reduced ? 0 : 0.5, stagger: reduced ? 0 : 0.06, ease: 'power3.out' });
+if (!reduced) gsap.to('#f1,#f2', { strokeDashoffset: -48, duration: 1.2, repeat: -1, ease: 'none' });
+let charts = [];
+function pal() { const s = getComputedStyle(document.documentElement); return { ink: s.getPropertyValue('--mv-ink').trim(), mut: s.getPropertyValue('--mv-muted').trim(), acc: s.getPropertyValue('--mv-accent').trim(), border: s.getPropertyValue('--mv-border').trim() }; }
+function mk(id, opt) { const el = document.getElementById(id); const c = echarts.init(el); c.setOption(opt); charts.push(c); }
+function drawAll() {
+  const p = pal(); charts.forEach(c => c.dispose()); charts = [];
+  const ax = { splitLine: { lineStyle: { color: p.border } }, axisLabel: { color: p.mut, fontFamily: 'Geist Mono', fontSize: 11 } };
+  mk('c-rent', { backgroundColor: 'transparent', grid: { left: 8, right: 64, top: 8, bottom: 0, containLabel: true },
+    xAxis: Object.assign({ type: 'value' }, ax),
+    yAxis: { type: 'category', data: ['AMD Anthropic','Volta 6yr','Meta talks','TeraWulf 20yr','Azure commit','Lambda','Nscale 6yr','Reliance 7yr','Adani','Ohio backstop','Oracle 5yr','TSMC Arizona','Stargate'],
+      axisLabel: { color: p.ink, fontSize: 12 }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [{ type: 'bar', data: [5,10,10,19,30,35,45,110,100,105,300,265,500], barWidth: 13,
+      itemStyle: { borderRadius: [0,7,7,0], color: p.acc },
+      label: { show: true, position: 'right', color: p.mut, fontFamily: 'Geist Mono', formatter: '${c}B' } }],
+    tooltip: { trigger: 'item', formatter: '{b}: ${c}B' }, animationDuration: reduced ? 0 : 800 });
+  mk('c-neck', { backgroundColor: 'transparent', grid: { left: 8, right: 60, top: 8, bottom: 0, containLabel: true },
+    xAxis: Object.assign({ type: 'value' }, ax),
+    yAxis: { type: 'category', data: ['EUV lead (mo)','CoWoS gap %','ABF shortfall 28 %','GSU lead (wks)','US queue (mo)'],
+      axisLabel: { color: p.ink, fontSize: 12 }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [{ type: 'bar', data: [21,10,42,144,61], barWidth: 14, itemStyle: { borderRadius: [0,7,7,0], color: p.acc },
+      label: { show: true, position: 'right', color: p.mut, fontFamily: 'Geist Mono' } }],
+    tooltip: { trigger: 'item' }, animationDuration: reduced ? 0 : 800 });
+  mk('c-hbm', { backgroundColor: 'transparent', legend: { textStyle: { color: p.mut }, bottom: 0 },
+    grid: { left: 8, right: 8, top: 8, bottom: 40, containLabel: true },
+    xAxis: { type: 'category', data: ['2026', '2027'], axisLabel: { color: p.mut } },
+    yAxis: Object.assign({ type: 'value', max: 100 }, ax),
+    series: [
+      { name: 'SK Hynix', type: 'bar', stack: 't', data: [59, 39], itemStyle: { color: p.acc } },
+      { name: 'Samsung', type: 'bar', stack: 't', data: [32, 41], itemStyle: { color: p.mut } },
+      { name: 'Micron', type: 'bar', stack: 't', data: [9, 20], itemStyle: { color: p.border } }],
+    tooltip: { trigger: 'axis' }, animationDuration: reduced ? 0 : 800 });
+  mk('c-spot', { backgroundColor: 'transparent', grid: { left: 8, right: 60, top: 8, bottom: 0, containLabel: true },
+    xAxis: Object.assign({ type: 'value' }, ax),
+    yAxis: { type: 'category', data: ['Vast spot H100','Broker floor','io.net','Together H100','Lambda H100','CoreWeave H100'],
+      axisLabel: { color: p.ink, fontSize: 12 }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [{ type: 'bar', data: [0.35,1.6,2.1,3.99,4.29,6.16], barWidth: 14, itemStyle: { borderRadius: [0,7,7,0], color: p.acc },
+      label: { show: true, position: 'right', color: p.mut, fontFamily: 'Geist Mono', formatter: '${c}/hr' } }],
+    tooltip: { trigger: 'item', formatter: '{b}: ${c}/hr' }, animationDuration: reduced ? 0 : 800 });
+  mk('c-sil', { backgroundColor: 'transparent', legend: { textStyle: { color: p.mut }, bottom: 0 },
+    series: [{ type: 'pie', radius: ['52%','78%'], data: [
+      { value: 9, name: 'Volume' }, { value: 6, name: 'Pilot' }, { value: 4, name: 'Dead/captive' }],
+      label: { color: p.ink }, itemStyle: { borderColor: p.ink, borderWidth: 0 } }],
+    color: [p.acc, p.mut, p.border], animationDuration: reduced ? 0 : 800 });
+}
+drawAll();
+addEventListener('resize', () => charts.forEach(c => c.resize()));
+</script>
+</body>
+</html>
